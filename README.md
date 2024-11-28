@@ -11,13 +11,14 @@
 - [x] CRUD operations for Authentication
 - [x] Login/Logout mechanisms
 - [x] JWT token generation
-- [ ] RBAC (DB-level)
+- [x] RBAC (DB-level)
 - [ ] Ensure encryption operations are stable
 - [ ] Provide install instructions
 - [ ] Create deployment packaging
 - [ ] Ensure that project meets ACID compliance
 - [ ] Ensure that project statements are parameterized
-- [ ] Transaction management
+- [x] Transaction management (Non-SELECT)
+- [ ] Data type validation
 
 ## 👋 Introduction
 
