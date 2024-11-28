@@ -18,5 +18,5 @@ Disclosures are handled at the discretion of the simplQL Team. We will acknowled
 
 We will accept vulnerability reports for the current release and the previous release of the project. We will make an effort to backport fixes to the previous release if necessary.
 
-Please see the Support Policy (./SUPPORT) for information on the support timeline of the project.
+Please see the [Support Policy](./SUPPORT) for information on the support timeline of the project.
 
