@@ -108,15 +108,20 @@ var (
 
 // Error messages
 var (
-	ErrorDataProcessing                 = "PROCESSING_ERROR"
-	ErrorValidatingOriginalFormatHeader = "VALIDATION_ERROR"
-	ErrorInvalidColumnType              = "INVALID_COLUMN_TYPE"
-	ErrorInvalidTableName               = "INVALID_TABLE_NAME"
-	ErrorDatabaseInitialization         = "DATABASE_INITIALIZATION_ERROR"
-	ErrorTransaction                    = "TRANSACTION_ERROR"
-	ErrorTransactionTableNameExtraction = "TRANSACTION_TABLE_NAME_EXTRACTION"
-	ErrorTransactionRecordIDExtraction  = "TRANSACTION_RECORD_ID_EXTRACTION"
-	ErrorTransactionNoEntry             = "TRANSACTION_NO_ENTRY"
-	ErrorJWTDisabled                    = "JWT_DISABLED"
-	ErrorNotExist                       = "DOES_NOT_EXIST"
+	ErrorDataProcessing                     = "PROCESSING_ERROR"
+	ErrorValidatingOriginalFormatHeader     = "VALIDATION_ERROR"
+	ErrorInvalidColumnType                  = "INVALID_COLUMN_TYPE"
+	ErrorInvalidTableName                   = "INVALID_TABLE_NAME"
+	ErrorDatabaseInitialization             = "DATABASE_INITIALIZATION_ERROR"
+	ErrorTransaction                        = "TRANSACTION_ERROR"
+	ErrorTransactionTableNameExtraction     = "TRANSACTION_TABLE_NAME_EXTRACTION"
+	ErrorTransactionRecordIDExtraction      = "TRANSACTION_RECORD_ID_EXTRACTION"
+	ErrorTransactionNoEntry                 = "TRANSACTION_NO_ENTRY"
+	ErrorJWTDisabled                        = "JWT_DISABLED"
+	ErrorNotExist                           = "DOES_NOT_EXIST"
+	ErrorAuthenticationNoRoles              = "AUTH_NO_ROLES"
+	ErrorAuthenticationInvalid              = "AUTH_INVALID"
+	ErrorAuthenticationUserNotFound         = "AUTH_USER_NOT_FOUND"
+	ErrorAuthenticationJWTExpired           = "AUTH_JWT_EXPIRED"
+	ErrorAuthenticationJWTExpiredFromJWTLib = "token invalid: expired - Login required to refresh token" // This is the specific error from mitchs-dev/library-go/jwt
 )
