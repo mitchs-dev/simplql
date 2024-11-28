@@ -33,11 +33,11 @@
 - **JSON Responses**: All responses from the simplQL server are returned in a standardized JSON format, making it easy to parse and consume the data.
 - **Authentication and Authorization**: simplQL supports per-database user management and role-based access control (RBAC), ensuring secure access to the data.
 - **Static Database and Tables**: The database structure, including tables and their schemas, is defined in a configuration file and initialized during startup, providing a predictable and maintainable setup.
-- **Database Versioning and Migrations**: simplQL includes a versioning system that allows for easy database schema updates and migrations, simplifying the management of database changes over time.
-- **Per-Database User Isolation**: Each database in simplQL has its own set of users, ensuring complete isolation and security between different data stores.
+- **Database Versioning and Migrations**: simplQL includes a versioning system that allows for easy database schema updates and migrations, simplifying the management of database changes over time. (Future feature)
+- **Per-Database User Isolation**: Each database in simplQL has its own set of users, ensuring complete isolation and security between different data stores. (Future feature)
 - **Per-Database RBAC**: The RBAC system in simplQL is scoped to individual databases, allowing for granular control over user permissions and access rights.
 - **Per-entry encryption**: SimplQL can be configured to encrypt each entry of every database, ensuring that data is secure at rest.
-  > **Important**: To validate the encryption key; SimplQL uses the `id` command to generate a file. If your system user's id or groups have changed, the validation will fail.
+  > 🚨 **Important**: To validate the encryption key; SimplQL uses the `id` command to generate a file. If your system user's id or groups have changed, the validation will fail.
 
 ## 💼 Use Cases
 
