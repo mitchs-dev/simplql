@@ -1,0 +1,277 @@
+requestSchema:
+    schemaVersion: 1.0.0
+    categories:
+
+##################################
+# Database Management
+##################################
+
+    - name: "db"
+      description: "Database management for the server"
+      actions:
+
+    ##############################
+    # Create
+    ##############################
+      - name: "create"
+        body: true
+        method: "POST"
+        description: "Create a new entry"
+        parameters: []
+        optionalParameters: []
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request"
+        roles:
+        #- "admin"
+        #- "user"
+  
+    ##############################
+    # Read
+    ##############################
+      - name: "read"
+        body: false
+        method: "GET"
+        description: "Query the database"
+        parameters:
+        - "database"
+        - "table"
+        - "field"
+        optionalParameters:
+        - "page"
+        - "limit"
+        - "sort"
+        - "filters"
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request"
+        roles:
+        #- "admin"
+        #- "user"
+        #- "read-only"
+        
+    ##############################
+    # Update
+    ##############################
+      - name: "update"
+        body: true
+        method: "PUT"
+        description: "Update an entry"
+        parameters: []
+        optionalParameters: []
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request"
+        roles:
+        #- "admin"
+        #- "user"
+    
+    ##############################
+    # Delete
+    ##############################
+      - name: "delete"
+        body: false
+        method: "DELETE"
+        description: "Delete an entry"
+        parameters:
+        - "database"
+        - "table"
+        - "filters"
+        optionalParameters: []
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request"
+        roles:
+        #- "admin"
+        #- "user"
+
+##################################
+# System
+##################################
+
+    ##############################
+    # Documentation
+    ##############################
+    - name: "docs"
+      description: "Documentation for the server API"
+      actions:
+      - name: "api"
+        body: false
+        method: "GET"
+        description: "Get the API documentation"
+        parameters: []
+        optionalParameters:
+        - "format"
+        headers:
+          response:
+            - name: "X-Correlation-ID"
+              description: "Correlation ID for the request"
+        roles: []
+
+    ##############################
+    # Status Information
+    ##############################
+    - name: "system"
+      description: "Get information of the server"
+      actions:
+      - name: "version"
+        body: false
+        method: "GET"
+        description: "Get the version of the server"
+        parameters: []
+        optionalParameters: []
+        headers:
+          response:
+            - name: "X-Correlation-ID"
+              description: "Correlation ID for the request"
+        roles: []
+      - name: "healthz"
+        body: false
+        method: "GET"
+        description: "Get the health of the server"
+        parameters: []
+        optionalParameters: []
+        headers:
+          request:
+            - name: "X-Healthz"
+              description: "Simple header to ensure the health check is intentional"
+              required: true
+          response:
+            - name: "X-Correlation-ID"
+              description: "Correlation ID for the request"
+        roles: []
+
+    ##############################
+    # Authentication
+    ##############################
+    - name: "auth"
+      description: "Authentication management for a users within a specified database"
+      actions:
+      - name: "login"
+        body: false
+        method: "POST"
+        description: "Login to the server with username and password - Response provides a JWT to be used for future requests"
+        parameters:
+        - "database"
+        optionalParameters: []
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-JWT-Token"
+            description: "Header which contains the JWT token for the user"
+          - name: "X-Session-Timeout"
+            description: "Header which contains the session timeout for the user before the JWT token expires and the user must login again"
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request" 
+        roles:
+        #- "read-only"
+        #- "user"
+        #- "admin"
+      - name: "logout"
+        body: false
+        method: "POST"
+        description: "Logout from the server - This will clear the JWT token for the respective user"
+        parameters: []
+        optionalParameters: []
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request"
+        roles:
+        #- "read-only"
+        #- "user"
+        #- "admin"
+      - name: "create"
+        body: true
+        method: "POST"
+        description: "Create a new user"
+        parameters: []
+        optionalParameters: []
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request"
+        roles:
+        #- "admin"
+      - name: "delete"
+        body: true
+        method: "DELETE"
+        description: "Delete a user"
+        parameters: []
+        optionalParameters: []
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request"
+        roles:
+        #- "admin"
+      - name: "read"
+        body: true
+        method: "GET"
+        description: "Read action for users"
+        parameters: []
+        optionalParameters:
+        - "page"
+        - "limit"
+        - "sort"
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request"
+        roles:
+        #- "admin"
+      - name: "update"
+        body: true
+        method: "PUT"
+        description: "Update a user"
+        parameters: []
+        optionalParameters: []
+        headers:
+          request:
+          - name: "Authorization"
+            description: "Header required for authentication - Can be Basic (base64 encoded username:password) or Bearer (JWT token) - Must have Basic or Bearer prefix"
+            required: true
+          response:
+          - name: "X-Correlation-ID"
+            description: "Correlation ID for the request"
+        roles:
+        #- "admin"

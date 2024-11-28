@@ -1,0 +1,41 @@
+logging:
+  debug: false # Whether to enable debug logging
+  transactions: # Transaction logging in the database
+    enabled: true # Whether to enable transaction logging
+    logSelectQueries: false # Whether to log select queries (can be very verbose)
+session: # Session configuration
+  jwt: # JWT configuration
+    enabled: true # Whether to enable JWT
+    timeout: 24h # Session timeout (1h,24h,7d,30d, etc)
+  default: # Default user configuration
+    name: "root" # Default user name - Recommended to set $SIMPLQL_DEFAULT_NAME instead (Empty will use the default user)
+    password: "" # Default user password - Recommended to set $SIMPLQL_DEFAULT_PASSWORD or auto-generated instead (Empty for an auto-generated password)
+network: # Network configuration
+  port: 3307 # Port to listen on
+  listenAddress: localhost # Address to listen on
+  tls: # TLS configuration
+    enabled: false # Whether to enable TLS
+    cert: "/opt/simplql/certificates/cert.crt" # Path to the TLS certificate
+    key: "/opt/simplql/certificates/cert.key" # Path to the TLS key
+storage: # Storage configuration
+  encryption: # Encryption configuration
+    enabled: false # Whether to enable encryption
+    path: "/opt/simplql/keys/encryption" # Path to store encryption key
+    key: "" # Encryption key (If empty a random key will be generated)
+  path: "/opt/simplql/databases" # Path to store SQLite database file(s)
+databases: [] # List of databases to create
+# Example:
+# - name: "users" # Name of the database
+#   version: 1 # Version of the database
+#   tables: # List of tables to create
+#   - name: "details" # Name of the table
+#     columns: # List of columns to create
+#     - name: "id" # Name of the column
+#       type: "TEXT" # Type of the column
+#       primaryKey: true # Whether the column is a primary key
+#     - name: "password" # Name of the column
+#       type: "TEXT" # Type of the column
+#       primaryKey: false # Whether the column is a primary key
+#     - name: "username" # Name of the column
+#       type: "TEXT" # Type of the column
+#       primaryKey: false # Whether the column is a primary key
