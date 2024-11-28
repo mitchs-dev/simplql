@@ -7,15 +7,16 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/mitchs-dev/library-go/generator"
+	"github.com/mitchs-dev/library-go/networking"
+	authPkg "github.com/mitchs-dev/simplQL/pkg/api/auth"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/configuration"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/sqlWrapper"
-	"github.com/mitchs-dev/library-go/generator"
-	"github.com/mitchs-dev/library-go/networking"
 	log "github.com/sirupsen/logrus"
 )
 
-var arb authRequestBody
+var arb authPkg.AuthRequestBody
 
 var c configuration.Configuration
 
@@ -39,7 +40,7 @@ func Create(r *http.Request, w http.ResponseWriter, correlationID string) {
 		return
 	}
 
-	arb.getAuthRequest(authBody, correlationID)
+	arb.GetAuthRequest(authBody, correlationID)
 	// If the request body is empty, return an error
 	if reflect.DeepEqual(arb, reflect.Zero(reflect.TypeOf(arb)).Interface()) {
 		response := globals.Response{

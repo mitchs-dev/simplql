@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/mitchs-dev/library-go/networking"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/data"
 	"github.com/mitchs-dev/simplQL/pkg/database/sqlWrapper"
-	"github.com/mitchs-dev/library-go/networking"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -32,7 +32,7 @@ func Delete(r *http.Request, w http.ResponseWriter, correlationID string) {
 		return
 	}
 
-	arb.getAuthRequest(authBody, correlationID)
+	arb.GetAuthRequest(authBody, correlationID)
 
 	database := arb.Database
 	table := globals.UsersTable

@@ -5,8 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/library-go/networking"
+	authPkg "github.com/mitchs-dev/simplQL/pkg/api/auth"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -42,7 +43,7 @@ func Logout(r *http.Request, w http.ResponseWriter, correlationID string) {
 
 	database := r.URL.Query().Get("database")
 
-	name, password, jwt, err := authenticationHeaderData(r.Header.Get(globals.AuthenticationAuthorizationHeader), correlationID)
+	name, password, jwt, err := authPkg.AuthenticationHeaderData(r.Header.Get(globals.AuthenticationAuthorizationHeader), correlationID)
 	if err != nil {
 		log.Error("Failed to get authentication header data: ", err.Error()+" (C: "+correlationID+" | M: "+r.Method+" | IP: "+networking.GetRequestIPAddress(r)+")")
 		response := globals.Response{
@@ -90,7 +91,7 @@ func Logout(r *http.Request, w http.ResponseWriter, correlationID string) {
 	)
 	if name != "" && password != "" {
 		// Check if the user exists
-		userExists, userID, _, err = checkBasic(name, password, database)
+		userExists, userID, _, err = authPkg.CheckBasic(name, password, database)
 		if err != nil {
 			if strings.Contains(err.Error(), globals.ErrorNotExist) {
 				log.Error("User name (" + name + ") does not exist (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
@@ -120,7 +121,7 @@ func Logout(r *http.Request, w http.ResponseWriter, correlationID string) {
 		}
 	} else if jwt != "" {
 		log.Debug("JWT provided, checking if user exists")
-		userExists, userID, name, _, err = checkJWT(jwt, database)
+		userExists, userID, name, _, err = authPkg.CheckJWT(jwt, database)
 		if err != nil {
 			if strings.Contains(err.Error(), globals.ErrorNotExist) {
 				log.Error("JWT not found (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")

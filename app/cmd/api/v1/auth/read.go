@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/mitchs-dev/library-go/networking"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/data"
 	"github.com/mitchs-dev/simplQL/pkg/database/sqlWrapper"
-	"github.com/mitchs-dev/library-go/networking"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -32,7 +32,7 @@ func Read(r *http.Request, w http.ResponseWriter, correlationID string) {
 		return
 	}
 
-	arb.getAuthRequest(requestBody, correlationID)
+	arb.GetAuthRequest(requestBody, correlationID)
 
 	c.GetConfig()
 	database := arb.Database

@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/mitchs-dev/library-go/networking"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/sqlWrapper"
-	"github.com/mitchs-dev/library-go/networking"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -35,7 +35,7 @@ func Update(r *http.Request, w http.ResponseWriter, correlationID string) {
 	}
 
 	// Decode the request body into the EntryUpdate struct
-	arb.getAuthRequest(requestBody, correlationID)
+	arb.GetAuthRequest(requestBody, correlationID)
 
 	log.Info("Using database: " + arb.Database + " for query (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
