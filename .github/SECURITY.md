@@ -1,4 +1,4 @@
-## Secuirty Policy
+## Security Policy
 
 **Do not report security vulnerabilities through public GitHub issues.** If you believe you have found a security vulnerability, please submit a report to simplql@mitchs.dev.
 
