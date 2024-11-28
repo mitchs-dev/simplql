@@ -34,25 +34,21 @@ requestSchema:
               data:
                 column: "value"
         roles:
-        #- "admin"
-        #- "user"
+        - "admin"
+        - "user"
   
     ##############################
     # Read
     ##############################
       - name: "read"
-        body: false
+        body: true
         method: "GET"
         description: "Query the database"
-        parameters:
-        - "database"
-        - "table"
-        - "field"
+        parameters: []
         optionalParameters:
         - "page"
         - "limit"
         - "sort"
-        - "filters"
         headers:
           request:
           - name: "Authorization"
@@ -61,10 +57,18 @@ requestSchema:
           response:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request"
+        bodyData:
+          database: "string"
+          entries:
+            - table: "string"
+              data:
+                column: "value"
+                __select:
+                - "string"
         roles:
-        #- "admin"
-        #- "user"
-        #- "read-only"
+        - "admin"
+        - "user"
+        - "read-only"
         
     ##############################
     # Update
@@ -92,8 +96,8 @@ requestSchema:
                 __update:
                 - column: "value"
         roles:
-        #- "admin"
-        #- "user"
+        - "admin"
+        - "user"
     
     ##############################
     # Delete
@@ -116,8 +120,8 @@ requestSchema:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request"
         roles:
-        #- "admin"
-        #- "user"
+        - "admin"
+        - "user"
 
 ##################################
 # System
@@ -201,9 +205,9 @@ requestSchema:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request" 
         roles:
-        #- "read-only"
-        #- "user"
-        #- "admin"
+        - "read-only"
+        - "user"
+        - "admin"
       - name: "logout"
         body: false
         method: "POST"
@@ -219,9 +223,9 @@ requestSchema:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request"
         roles:
-        #- "read-only"
-        #- "user"
-        #- "admin"
+        - "read-only"
+        - "user"
+        - "admin"
       - name: "create"
         body: true
         method: "POST"
@@ -244,7 +248,7 @@ requestSchema:
             roles:
               - "string"
         roles:
-        #- "admin"
+        - "admin"
       - name: "delete"
         body: true
         method: "DELETE"
@@ -268,7 +272,7 @@ requestSchema:
             roles:
               - "string (optional)"
         roles:
-        #- "admin"
+        - "admin"
       - name: "read"
         body: true
         method: "GET"
@@ -297,7 +301,7 @@ requestSchema:
             __select:
             - "string (optional)"
         roles:
-        #- "admin"
+        - "admin"
       - name: "update"
         body: true
         method: "PUT"
@@ -323,4 +327,4 @@ requestSchema:
             __update:
             - "string (optional)"
         roles:
-        #- "admin"
+        - "admin"
