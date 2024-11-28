@@ -7,12 +7,15 @@ route them to the registry package to call the appropriate function.
 package requests
 
 import (
+	"bytes"
 	"embed"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
+	"github.com/mitchs-dev/simplQL/pkg/api/auth"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/configuration"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 
@@ -105,14 +108,53 @@ func interceptor(w http.ResponseWriter, r *http.Request) {
 	log.Debug("Processing request with category: " + category + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
 	// Validate the request
-	invalidReason, categoryIndex, actionIndex, jwtTokenValue, jwtTokenExpireTime, err := runRequestValidation(r)
+	invalidReason, categoryIndex, actionIndex, jwtTokenValue, jwtTokenExpireTime, err := runRequestValidation(r, correlationID)
 
 	// Set the JWT Token and Expire Time in the response headers
 	w.Header().Set(globals.AuthenticationHeaderJWTSessionToken, jwtTokenValue)
 	w.Header().Set(globals.AuthenticationHeaderSessionTimeout, jwtTokenExpireTime)
 
 	if err != nil {
-		if invalidReason == "INTERNAL_SERVER_ERROR ("+correlationID+")" {
+		if invalidReason == globals.ErrorAuthenticationNoRoles {
+			log.Error("User does not have a required role: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
+			w.WriteHeader(403)
+			response := globals.Response{
+				Status:  "error",
+				Message: "Forbidden: You do not have a required role to complete the request",
+				Data:    map[string]string{"correlationID": correlationID},
+			}
+			err := json.NewEncoder(w).Encode(response)
+			if err != nil {
+				log.Error("Error encoding response", err.Error()+" (C: "+correlationID+" | M: "+r.Method+" | IP: "+networking.GetRequestIPAddress(r)+")")
+			}
+			return
+		} else if invalidReason == globals.ErrorAuthenticationUserNotFound {
+			log.Error("User not found: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
+			w.WriteHeader(401)
+			response := globals.Response{
+				Status:  "error",
+				Message: "Unauthorized: User not found",
+				Data:    map[string]string{"correlationID": correlationID},
+			}
+			err := json.NewEncoder(w).Encode(response)
+			if err != nil {
+				log.Error("Error encoding response", err.Error()+" (C: "+correlationID+" | M: "+r.Method+" | IP: "+networking.GetRequestIPAddress(r)+")")
+			}
+			return
+		} else if invalidReason == globals.ErrorAuthenticationJWTExpired {
+			log.Error("Expired JWT: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
+			w.WriteHeader(401)
+			response := globals.Response{
+				Status:  "error",
+				Message: "Unauthorized: JWT Expired",
+				Data:    map[string]string{"correlationID": correlationID},
+			}
+			err := json.NewEncoder(w).Encode(response)
+			if err != nil {
+				log.Error("Error encoding response", err.Error()+" (C: "+correlationID+" | M: "+r.Method+" | IP: "+networking.GetRequestIPAddress(r)+")")
+			}
+			return
+		} else if invalidReason == "INTERNAL_SERVER_ERROR ("+correlationID+")" {
 			log.Error("Internal server error: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 			w.WriteHeader(500)
 			response := globals.Response{
@@ -217,7 +259,7 @@ func Handler() {
 */
 
 // runRequestValidation validates the request and returns Error Reason, Category Index, Action Index, JWT Token, JWT Token Expire Time, and Error
-func runRequestValidation(r *http.Request) (string, int, int, string, string, error) {
+func runRequestValidation(r *http.Request, correlationID string) (string, int, int, string, string, error) {
 
 	// Ensure that the request contains the api path
 	if !strings.Contains(r.URL.Path, globals.NetworkingAPIEndpoint) {
@@ -292,15 +334,64 @@ func runRequestValidation(r *http.Request) (string, int, int, string, string, er
 						}
 					}
 
+					log.Debug("Action roles: ", action.Roles)
 					// Verify the user making the request has a required role
 					if len(action.Roles) > 0 {
+
+						log.Debug("Request requires authentication (" + category.Name + "/" + action.Name + ") - Ensuring user is authenticated")
 
 						authorizationHeader := r.Header.Get(globals.AuthenticationAuthorizationHeader)
 
 						if authorizationHeader == "" {
 							return "Authorization header not found - Request (" + action.Method + " " + globals.NetworkingAPIEndpoint + "/" + category.Name + "/" + action.Name + ") requires authorization", i, j, "", "", fmt.Errorf("invalid request")
 						}
-						// TODO: Authentication
+
+						var arb auth.AuthRequestBody
+						requestBody, err := io.ReadAll(r.Body)
+						if err != nil {
+							return "failed to read request body", i, j, "", "", fmt.Errorf("invalid request")
+						}
+
+						// Reset the request body so it can be read again
+						r.Body = io.NopCloser(bytes.NewBuffer(requestBody))
+						arb.GetAuthRequest(requestBody, correlationID)
+
+						var erb globals.EntryRequest
+						// Read the request body into a buffer
+						bodyBytes, err := io.ReadAll(r.Body)
+						if err != nil {
+							return "failed to read request body", i, j, "", "", fmt.Errorf("invalid request")
+						}
+						// Decode the buffer into requestBody
+						err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&requestBody)
+						if err != nil {
+							log.Debug("Request doesn't seem like an entry request")
+						}
+
+						// Reset the request body so it can be read again later
+						r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+
+						var database string
+						if r.URL.Query().Get("database") != "" {
+							database = strings.TrimPrefix(r.URL.Query().Get("database"), "\"")
+							database = strings.TrimSuffix(database, "\"")
+						} else if arb.Database != "" {
+							database = arb.Database
+						} else if erb.Database != "" {
+							database = erb.Database
+						} else {
+							return "Database could not be found but is required for authentication", i, j, "", "", fmt.Errorf("invalid request - database not found in request")
+						}
+
+						userID, err := auth.RunAuthChecks(authorizationHeader, database, correlationID, action.Roles)
+						if err != nil {
+							return err.Error(), i, j, "", "", err
+						}
+						log.Debug("User is authenticated: " + userID + " and will continue with request validation (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
+
+					} else {
+
+						log.Debug("No authentication required for the request: " + action.Name + " (" + category.Name + ")")
 
 					}
 
