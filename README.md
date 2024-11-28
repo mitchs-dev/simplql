@@ -90,3 +90,8 @@ Here are some additional features which are up for consideration in future phase
 - Monitoring exposure
 
 Throughout the development process, the simplQL team will maintain a strong focus on simplicity, ease of use, and alignment
+
+
+## 💻 Contributing
+
+Looking to contribute to simplQL? We welcome contributions from the community! Whether you're interested in fixing bugs, adding new features, improving documentation, or simply testing the project, your help is greatly appreciated. Please refer to our [Contributing Guidelines](./.github/CONTRIBUTING.md) for more information on how to get started.
