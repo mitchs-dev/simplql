@@ -23,7 +23,7 @@
 
 `simplQL` is a lightweight SQLite server designed to provide a simple and efficient solution for applications that require a basic database functionality. Unlike traditional SQL servers, `simplQL` is focused on delivering a streamlined set of features tailored for specific use cases, ensuring a balance between simplicity and functionality.
 
-> **Disclaimer**: `simplQL` is not intended to be a drop-in replacement for full-fledged SQL servers like MySQL or PostgreSQL. Instead, it is designed to cater to applications that need a lightweight, self-contained database solution with minimal setup and configuration.
+> ⚠️ **Disclaimer**: `simplQL` is not intended to be a drop-in replacement for full-fledged SQL servers like MySQL or PostgreSQL. Instead, it is designed to cater to applications that need a lightweight, self-contained database solution with minimal setup and configuration. ⚠️
 
 ## 🔑 Key Features
 
