@@ -1,3 +1,7 @@
+<!-- If this is a security-related issue, please follow: https://github.com/mitchs-dev/simplql/blob/main/.github/SECURITY.md -->
+
+<!-- Make sure that you are following the Code of Conduct: https://github.com/mitchs-dev/simplql/blob/main/.github/CODE_OF_CONDUCT.md. -->
+
 ## Issue overview
 
 <!-- Provide a general summary of the issue in the Title above -->
@@ -5,6 +9,7 @@
 ## Environment
 
 - **OS**: <!-- e.g. Windows, macOS, Linux -->
+<!-- Ensure that your version is supported: https://github.com/mitchs-dev/simplql/blob/main/.github/SUPPORT.md -->
 - **SimpleQL Version**: <!-- e.g. 1.0.0 -->
 - **Packaging**: <!-- e.g. Docker, Binary, Source Code -->
 
