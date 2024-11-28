@@ -1,4 +1,4 @@
-# How to contribute
+# Contributing Guidelines
 
 We welcome contributions to the project. Please follow the guidelines below.
 
