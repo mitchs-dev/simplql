@@ -6,7 +6,53 @@ We welcome contributions to the project. Please follow the guidelines below.
 
 If you encounter any issues with the project, please file a bug report in GitHub issues following the pre-defined template. 
 
-If you face a security issue, **please do not report it in the public issue tracker**. Instead, please follow the instructions in the Security Policy (./SECURITY).
+If you face a security issue, **please do not report it in the public issue tracker**. Instead, please follow the instructions in the [Security Policy](./SECURITY).
+
+### Experience required to work on this project
+
+To work on this project, it's suggested to have some experience with the following technologies:
+
+> **If you don't have experience with these technologies, we encourage you to still contribute and learn along the way!**
+
+- [Go](https://golang.org/)
+- [SQLite](https://www.sqlite.org/index.html) (or [SQL](https://en.wikipedia.org/wiki/SQL) in general)
+
+There are many other technologies being used in this project, but the two above are the key ones. 
+
+## Running the project locally
+
+### Prerequisites
+
+To run the project locally, you must have the following prerequisites installed:
+
+- [Go 1.23](https://golang.org/dl/)
+- [Git](https://git-scm.com/downloads)
+- [Docker](https://www.docker.com/products/docker-desktop) (If you want to run the project in a container or are specifically working on containerization)
+
+These tools aren't required, but they are recommended:
+
+- [VSCodium](https://vscodium.com/) or [Visual Studio Code](https://code.visualstudio.com/)
+- [yq](https://mikefarah.gitbook.io/yq/)
+- [jq](https://stedolan.github.io/jq/)
+
+### Project setup
+
+To set up the project locally, follow these steps:
+
+1. Clone the repository:
+
+    ```bash
+    # If you are using SSH
+    git clone git@github.com:mitchs-dev/simplql.git 
+    # If you are using HTTPS
+    git clone https://github.com/mitchs-dev/simplql.git
+    ```
+2. Change into the project directory (`simplql`)
+3. Install the project dependencies with `go mod tidy`
+4. Ensure that you have a `config` file to customize any settings. You can copy from the default configuration under `app/pkg/configurationAndInitalization/configuration/default.yaml`
+5. Change to the `app` directory
+6. Run the project with `go run cmd/main.go -c <path to your config file>`
+
 
 ## Pull requests
 
