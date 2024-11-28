@@ -27,6 +27,12 @@ requestSchema:
           response:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request"
+        bodyData:
+          database: "string"
+          entries:
+            - table: "string"
+              data:
+                column: "value"
         roles:
         #- "admin"
         #- "user"
@@ -77,6 +83,14 @@ requestSchema:
           response:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request"
+          bodyData:
+            database: "string"
+            entries:
+            - table: "string"
+              data:
+                column: "value"
+                __update:
+                - column: "value"
         roles:
         #- "admin"
         #- "user"
@@ -222,6 +236,13 @@ requestSchema:
           response:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request"
+        bodyData:
+          database: "string"
+          data:
+            name: "string"
+            password: "string (optional - auto-generated if empty)"
+            roles:
+              - "string"
         roles:
         #- "admin"
       - name: "delete"
@@ -238,6 +259,14 @@ requestSchema:
           response:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request"
+        bodyData:
+          database: "string"
+          data:
+            id: "string (optional)"
+            name: "string (optional)"
+            password: "string (optional)"
+            roles:
+              - "string (optional)"
         roles:
         #- "admin"
       - name: "read"
@@ -257,6 +286,16 @@ requestSchema:
           response:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request"
+        bodyData:
+          database: "string"
+          data:
+            id: "string (optional)"
+            name: "string (optional)"
+            password: "string (optional)"
+            roles:
+            - "string (optional)"
+            __select:
+            - "string (optional)"
         roles:
         #- "admin"
       - name: "update"
@@ -273,5 +312,15 @@ requestSchema:
           response:
           - name: "X-Correlation-ID"
             description: "Correlation ID for the request"
+        bodyData:
+          database: "string"
+          data:
+            id: "string (optional)"
+            name: "string (optional)"
+            password: "string (optional)"
+            roles:
+            - "string (optional)"
+            __update:
+            - "string (optional)"
         roles:
         #- "admin"
