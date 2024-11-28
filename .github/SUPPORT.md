@@ -6,7 +6,7 @@ We will make an effort to backport fixes to the previous release if necessary.
 
 ## Reporting issues
 
-**Please see the [Security Policy](./SECURITY) for information on how to report security vulnerabilities.**
+**Please see the [Security Policy](./SECURITY.md) for information on how to report security vulnerabilities.**
 
 If you encounter any issues with the project, please file a bug report in GitHub issues following the pre-defined template.
 
