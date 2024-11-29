@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/library-go/generator"
 	"github.com/mitchs-dev/library-go/processor"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -27,7 +27,7 @@ func createTransactionsTable(database string) error {
 		// Create the transaction table
 		createTransactionTableQuery := `CREATE TABLE IF NOT EXISTS ` + globals.TransactionsTable + ` (id INTEGER PRIMARY KEY AUTOINCREMENT,Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,userID INTEGER NOT NULL,actionType TEXT NOT NULL,affectedTable TEXT NOT NULL,recordID INTEGER NOT NULL,oldValues TEXT,newValues TEXT,ipAddress TEXT,status TEXT NOT NULL,errorMessage TEXT)`
 		log.Debug("Creating transactions table with query: " + createTransactionTableQuery + " for database: " + database)
-		_, err = wrapper.Execute(createTransactionTableQuery)
+		_, err = wrapper.Execute(createTransactionTableQuery, globals.SystemUserID)
 		if err != nil {
 			log.Error("Error when creating transactions table: " + err.Error())
 			return errors.New(globals.ErrorDatabaseInitialization)
@@ -47,8 +47,9 @@ func createMetadataTable(database string, databaseVersion int) error {
 		}
 		return errors.New(globals.ErrorDatabaseInitialization)
 	}
+	query := `CREATE TABLE IF NOT EXISTS ` + globals.MetadataTable + ` (version TEXT)`
 	// Create metadata table
-	_, err = wrapper.Execute(`CREATE TABLE IF NOT EXISTS ` + globals.MetadataTable + ` (version TEXT)`)
+	_, err = wrapper.Execute(query, globals.SystemUserID)
 	if err != nil {
 		log.Error("Error when creating metadata table: " + err.Error())
 		if processor.FileDelete(dbFilePath) {
@@ -56,7 +57,9 @@ func createMetadataTable(database string, databaseVersion int) error {
 		}
 		return errors.New(globals.ErrorDatabaseInitialization)
 	}
-	_, err = wrapper.Execute(`INSERT INTO `+globals.MetadataTable+` (version) VALUES (?)`, fmt.Sprint(databaseVersion))
+	query = `INSERT INTO ` + globals.MetadataTable + ` (version) VALUES (?)`
+	args := []interface{}{fmt.Sprint(databaseVersion)}
+	_, err = wrapper.Execute(query, globals.SystemUserID, args)
 	if err != nil {
 		log.Error("Error when inserting database version: " + err.Error())
 		if processor.FileDelete(dbFilePath) {
@@ -79,8 +82,9 @@ func createUsersTable(database string) error {
 		}
 		return errors.New(globals.ErrorDatabaseInitialization)
 	}
+	query := `CREATE TABLE IF NOT EXISTS ` + globals.UsersTable + ` (id TEXT PRIMARY KEY, name TEXT, password TEXT, roles TEXT)`
 	// Create users table
-	_, err = wrapper.Execute(`CREATE TABLE IF NOT EXISTS ` + globals.UsersTable + ` (id TEXT PRIMARY KEY, name TEXT, password TEXT, roles TEXT)`)
+	_, err = wrapper.Execute(query, globals.SystemUserID)
 	if err != nil {
 		log.Error("Error when creating users table: " + err.Error())
 		if processor.FileDelete(dbFilePath) {
@@ -116,7 +120,9 @@ func createUsersTable(database string) error {
 		}
 		return errors.New(globals.ErrorDatabaseInitialization)
 	}
-	_, err = wrapper.Execute(`INSERT INTO `+globals.UsersTable+` (id,name, password, roles) VALUES (?,?, ?, ?)`, userID, userName, userPassword, string(defaultRolesAsJSON))
+	query = `INSERT INTO ` + globals.UsersTable + ` (id,name, password, roles) VALUES (?,?, ?, ?)`
+	args := []interface{}{userID, userName, userPassword, string(defaultRolesAsJSON)}
+	_, err = wrapper.Execute(query, globals.SystemUserID, args)
 	if err != nil {
 		log.Error("Error when inserting default user: " + err.Error())
 		if processor.FileDelete(dbFilePath) {
@@ -144,8 +150,9 @@ func createJWTTable(database string) error {
 		}
 		return errors.New(globals.ErrorDatabaseInitialization)
 	}
+	query := `CREATE TABLE IF NOT EXISTS ` + globals.JWTTable + ` (id TEXT PRIMARY KEY, token TEXT, sha256 TEXt, expiration TEXT)`
 	// Create JWT table
-	_, err = wrapper.Execute(`CREATE TABLE IF NOT EXISTS ` + globals.JWTTable + ` (id TEXT PRIMARY KEY, token TEXT, sha256 TEXt, expiration TEXT)`)
+	_, err = wrapper.Execute(query, globals.SystemUserID)
 	if err != nil {
 		log.Error("Error when creating JWT table: " + err.Error())
 		if processor.FileDelete(dbFilePath) {

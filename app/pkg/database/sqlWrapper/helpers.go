@@ -66,7 +66,7 @@ func extractRecordID(query string, args []interface{}) string {
 	match := re.FindStringSubmatch(query)
 	if len(match) > 1 {
 		return match[1]
-	} else {
+	} else { // If it doesn't match, search in the arguments
 		for _, arg := range args {
 			// Try to convert the argument to a string
 			if argStr, ok := arg.(string); ok {
@@ -79,8 +79,6 @@ func extractRecordID(query string, args []interface{}) string {
 					newArg := data.Process(arg)
 					if newArgStr, ok := newArg.(string); ok {
 						argStr = newArgStr
-					} else {
-						log.Fatal("This should never happen")
 					}
 				}
 				if strings.HasPrefix(argStr, globals.TableEntryIDPrefix) && strings.HasSuffix(argStr, globals.TableEntryIDSuffix) {

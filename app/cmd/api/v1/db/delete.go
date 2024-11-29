@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/mitchs-dev/library-go/networking"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/sqlWrapper"
-	"github.com/mitchs-dev/library-go/networking"
 	log "github.com/sirupsen/logrus"
 )
 
-func Delete(r *http.Request, w http.ResponseWriter, correlationID string) {
+func Delete(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 	c.GetConfig()
 
 	database := r.URL.Query().Get("database")
@@ -86,14 +86,15 @@ func Delete(r *http.Request, w http.ResponseWriter, correlationID string) {
 		return
 	}
 
-	var data []map[string]interface{}
-	var rowCount int
+	var (
+		data     []map[string]interface{}
+		rowCount int
+	)
+
+	columnValues := make([]interface{}, len(columns))
+	columnPointers := make([]interface{}, len(columns))
+
 	for rows.Next() {
-		columnPointers := make([]interface{}, len(columns))
-		columnValues := make([]interface{}, len(columns))
-		for i := range columnValues {
-			columnPointers[i] = &columnValues[i]
-		}
 		err = rows.Scan(columnPointers...)
 		if err != nil {
 			log.Error("Failed to scan row", err.Error()+" (C: "+correlationID+" | M: "+r.Method+" | IP: "+networking.GetRequestIPAddress(r)+")")
@@ -117,29 +118,46 @@ func Delete(r *http.Request, w http.ResponseWriter, correlationID string) {
 		rowCount++
 	}
 
-	deleteQuery := "DELETE FROM " + table
-
-	var delArgs []interface{}
-	var argPlaceholders string
+	var (
+		delArgs         []interface{}
+		argPlaceholders string
+	)
+	if len(data) == 0 {
+		log.Error("No rows found in table: " + table + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
+		w.WriteHeader(400)
+		response := globals.Response{
+			Status:  "error",
+			Message: "No rows found in table: " + table,
+			Data:    map[string]string{"correlationID": correlationID},
+		}
+		err := json.NewEncoder(w).Encode(response)
+		if err != nil {
+			log.Error("Failed to encode response", err.Error()+" (C: "+correlationID+" | M: "+r.Method+" | IP: "+networking.GetRequestIPAddress(r)+")")
+		}
+		return
+	}
 	for _, row := range data {
-		if id, ok := row[globals.TableEntryIDColumnName].(string); ok {
-			log.Debug("Row sys_eid: " + row[globals.TableEntryIDColumnName].(string))
-			delArgs = append(delArgs, id)
+		log.Debug("Processing row: ", row)
+		if syseid, ok := row[globals.TableEntryIDColumnName].(string); ok {
+			delArgs = append(delArgs, syseid)
 			argPlaceholders = argPlaceholders + ", ?"
 		} else {
 			// Debugging: Print a warning if the ID is not found or not a string
-			log.Warn("ID not found or not a string in row: ", row)
+			log.Debug("ID not found or not a string in row: ", row)
 		}
 	}
+
+	deleteQuery := "DELETE FROM " + table
 
 	deleteQuery += " WHERE " + globals.TableEntryIDColumnName + " IN (" + strings.TrimPrefix(argPlaceholders, ",") + ")"
 
 	log.Debug("Delete Query: " + deleteQuery + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
 	// Execute the delete query
-	_, err = wrapper.Execute(deleteQuery, delArgs...)
+	_, err = wrapper.Execute(deleteQuery, userID, delArgs...)
 	if err != nil {
 		log.Error("Failed to execute delete query: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
+		w.WriteHeader(400)
 		response := globals.Response{
 			Status:  "error",
 			Message: "Failed to execute delete query - Ensure that the query is valid",

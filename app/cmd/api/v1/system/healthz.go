@@ -5,12 +5,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/library-go/networking"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	log "github.com/sirupsen/logrus"
 )
 
-func Healthz(r *http.Request, w http.ResponseWriter, correlationID string) {
+func Healthz(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 	healthZHeaderKey := r.Header.Get(globals.NetworkingHeaderHealthZ)
 	if strings.ToLower(healthZHeaderKey) != "true" {
 		w.WriteHeader(400)

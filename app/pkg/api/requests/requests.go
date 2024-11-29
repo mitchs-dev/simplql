@@ -108,7 +108,7 @@ func interceptor(w http.ResponseWriter, r *http.Request) {
 	log.Debug("Processing request with category: " + category + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
 	// Validate the request
-	invalidReason, categoryIndex, actionIndex, jwtTokenValue, jwtTokenExpireTime, err := runRequestValidation(r, correlationID)
+	invalidReason, categoryIndex, actionIndex, userID, jwtTokenValue, jwtTokenExpireTime, err := runRequestValidation(r, correlationID)
 
 	// Set the JWT Token and Expire Time in the response headers
 	w.Header().Set(globals.AuthenticationHeaderJWTSessionToken, jwtTokenValue)
@@ -195,7 +195,7 @@ func interceptor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debug("Valid request: " + category + "(" + fmt.Sprint(categoryIndex) + "/" + fmt.Sprint(actionIndex) + ") (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
+	log.Debug("Valid request: " + category + " (index: " + fmt.Sprint(categoryIndex) + "/" + fmt.Sprint(actionIndex) + ") (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + " U: " + userID + ")")
 
 	rs.GetSchema(globals.RequestSchemaData)
 
@@ -205,7 +205,7 @@ func interceptor(w http.ResponseWriter, r *http.Request) {
 	// Combine the category and action to get make the functionRegistry key
 	functionToCall := category + "-" + action
 	// Finally, call the function from the registry
-	RunFunction(functionToCall, r, w, correlationID)
+	RunFunction(functionToCall, r, w, userID, correlationID)
 
 }
 
@@ -258,27 +258,29 @@ func Handler() {
 
 */
 
-// runRequestValidation validates the request and returns Error Reason, Category Index, Action Index, JWT Token, JWT Token Expire Time, and Error
-func runRequestValidation(r *http.Request, correlationID string) (string, int, int, string, string, error) {
+// runRequestValidation validates the request and returns Error Reason, Category Index, Action Index, User ID,  JWT Token, JWT Token Expire Time, and Error
+func runRequestValidation(r *http.Request, correlationID string) (string, int, int, string, string, string, error) {
+
+	var (
+		hasCategory  bool
+		hasAction    bool
+		errorMessage string
+		userID       string
+	)
 
 	// Ensure that the request contains the api path
 	if !strings.Contains(r.URL.Path, globals.NetworkingAPIEndpoint) {
-		return "Invalid path. Must be of type: " + globals.NetworkingAPIEndpoint, -1, -1, "", "", fmt.Errorf("invalid request")
+		return "Invalid path. Must be of type: " + globals.NetworkingAPIEndpoint, -1, -1, "", "", "", fmt.Errorf("invalid request")
 	}
 
 	// Ensure the request contains a valid category and action
 	if len(strings.Split(r.URL.Path, "/")) < 5 {
-		return "Request path must contain a category and action", -1, -1, "", "", fmt.Errorf("invalid request path")
+		return "Request path must contain a category and action", -1, -1, "", "", "", fmt.Errorf("invalid request path")
 	}
 
 	// Set the request category and action
 	requestCategory := strings.Split(r.URL.Path, "/")[3]
 	requestAction := strings.Split(r.URL.Path, "/")[4]
-
-	// Checks for if the request does not contain a valid category or action
-	var hasCategory bool
-	var hasAction bool
-	var errorMessage string
 
 	// JWT Token and Expire Time
 	var (
@@ -303,15 +305,15 @@ func runRequestValidation(r *http.Request, correlationID string) (string, int, i
 
 					// Check if the request method and body are valid
 					if action.Method != r.Method {
-						return "Method not allowed", i, j, "", "", fmt.Errorf("invalid request")
+						return "Method not allowed", i, j, "", "", "", fmt.Errorf("invalid request")
 					}
 
 					if action.Body && r.ContentLength == 0 {
-						return "Body is required", i, j, "", "", fmt.Errorf("invalid request")
+						return "Body is required", i, j, "", "", "", fmt.Errorf("invalid request")
 					} else if !action.Body && r.Body != nil {
 						// If the content length is not 0, then the body is not allowed
 						if r.ContentLength != 0 {
-							return "Body is not allowed", i, j, "", "", fmt.Errorf("invalid request")
+							return "Body is not allowed", i, j, "", "", "", fmt.Errorf("invalid request")
 						}
 					}
 
@@ -320,7 +322,7 @@ func runRequestValidation(r *http.Request, correlationID string) (string, int, i
 						// Check if the request contains valid parameters
 						for _, parameter := range action.Parameters {
 							if r.FormValue(parameter) == "" {
-								return "Parameter not found: " + parameter, i, j, "", "", fmt.Errorf("invalid request")
+								return "Parameter not found: " + parameter, i, j, "", "", "", fmt.Errorf("invalid request")
 							}
 						}
 					}
@@ -329,7 +331,7 @@ func runRequestValidation(r *http.Request, correlationID string) (string, int, i
 					if len(action.Headers.Request) > 0 {
 						for _, header := range action.Headers.Request {
 							if r.Header.Get(header.Name) == "" && header.Required {
-								return "Required header (" + header.Name + ") not found for request type: " + action.Method + " " + globals.NetworkingAPIEndpoint + "/" + category.Name + "/" + action.Name, i, j, "", "", fmt.Errorf("invalid request")
+								return "Required header (" + header.Name + ") not found for request type: " + action.Method + " " + globals.NetworkingAPIEndpoint + "/" + category.Name + "/" + action.Name, i, j, "", "", "", fmt.Errorf("invalid request")
 							}
 						}
 					}
@@ -343,13 +345,13 @@ func runRequestValidation(r *http.Request, correlationID string) (string, int, i
 						authorizationHeader := r.Header.Get(globals.AuthenticationAuthorizationHeader)
 
 						if authorizationHeader == "" {
-							return "Authorization header not found - Request (" + action.Method + " " + globals.NetworkingAPIEndpoint + "/" + category.Name + "/" + action.Name + ") requires authorization", i, j, "", "", fmt.Errorf("invalid request")
+							return "Authorization header not found - Request (" + action.Method + " " + globals.NetworkingAPIEndpoint + "/" + category.Name + "/" + action.Name + ") requires authorization", i, j, "", "", "", fmt.Errorf("invalid request")
 						}
 
 						var arb auth.AuthRequestBody
 						requestBody, err := io.ReadAll(r.Body)
 						if err != nil {
-							return "failed to read request body", i, j, "", "", fmt.Errorf("invalid request")
+							return "failed to read request body", i, j, "", "", "", fmt.Errorf("invalid request")
 						}
 
 						// Reset the request body so it can be read again
@@ -360,7 +362,7 @@ func runRequestValidation(r *http.Request, correlationID string) (string, int, i
 						// Read the request body into a buffer
 						bodyBytes, err := io.ReadAll(r.Body)
 						if err != nil {
-							return "failed to read request body", i, j, "", "", fmt.Errorf("invalid request")
+							return "failed to read request body", i, j, "", "", "", fmt.Errorf("invalid request")
 						}
 						// Decode the buffer into requestBody
 						err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&requestBody)
@@ -380,12 +382,12 @@ func runRequestValidation(r *http.Request, correlationID string) (string, int, i
 						} else if erb.Database != "" {
 							database = erb.Database
 						} else {
-							return "Database could not be found but is required for authentication", i, j, "", "", fmt.Errorf("invalid request - database not found in request")
+							return "Database could not be found but is required for authentication", i, j, "", "", "", fmt.Errorf("invalid request - database not found in request")
 						}
 
-						userID, err := auth.RunAuthChecks(authorizationHeader, database, correlationID, action.Roles)
+						userID, err = auth.RunAuthChecks(authorizationHeader, database, correlationID, action.Roles)
 						if err != nil {
-							return err.Error(), i, j, "", "", err
+							return err.Error(), i, j, "", "", "", err
 						}
 						log.Debug("User is authenticated: " + userID + " and will continue with request validation (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
@@ -395,39 +397,7 @@ func runRequestValidation(r *http.Request, correlationID string) (string, int, i
 
 					}
 
-					// TODO: Implement Roles
-					// // Verify the user making the request has a required role
-					// var userHasARole bool
-					// if len(action.Roles) > 0 {
-					// 	for _, roleIndex := range action.Roles {
-					// 		scope := strings.Split(roleIndex, ":")[0]
-					// 		var role string
-					// 		if strings.Contains(scope, globals.AuthScopeLocal) {
-					// 			role = strings.Split(roleIndex, ":")[1] + ":" + strings.Split(roleIndex, ":")[2]
-					// 		} else {
-					// 			role = strings.Split(roleIndex, ":")[1]
-					// 		}
-					// 		hasRole, err := ur.CheckUserRole(scope, role, authUsername)
-					// 		if err != nil {
-					// 			return "INTERNAL_SERVER_ERROR ("+correlationID+")", i, j, "", "", err
-					// 		}
-					// 		if hasRole {
-					// 			userHasARole = true
-					// 			break
-					// 		}
-					// 	}
-					// } else {
-					// 	log.Debug("No roles required for the request: " + authUsername + " (" + requestCategory + "/" + requestAction + ")")
-					// 	userHasARole = true
-					// }
-
-					// if !userHasARole {
-					// 	return "You do not have a required role to complete the request", i, j, "", "", fmt.Errorf("invalid request")
-					// }
-
-					// log.Debug("User has a required role for the request: " + authUsername + " (" + requestCategory + "/" + requestAction + ")")
-
-					return "", i, j, jwtTokenValue, jwtTokenExpireTime, nil
+					return "", i, j, userID, jwtTokenValue, jwtTokenExpireTime, nil
 				}
 			}
 		}
@@ -440,6 +410,6 @@ func runRequestValidation(r *http.Request, correlationID string) (string, int, i
 		errorMessage = "Action not found"
 	}
 
-	return errorMessage, -1, -1, "", "", fmt.Errorf("invalid request")
+	return errorMessage, -1, -1, "", "", "", fmt.Errorf("invalid request")
 
 }

@@ -36,6 +36,7 @@ var (
 	SystemParameterPrefix = "__"
 	SystemColumnPrefix    = "sys_"
 	SystemRolePrefix      = "__db:"
+	SystemUserID          = "SystemRolePrefix + system"
 	MetadataTable         = SystemTablePrefix + "metadata"
 	UsersTable            = SystemTablePrefix + "users"
 	JWTTable              = SystemTablePrefix + "jwts"

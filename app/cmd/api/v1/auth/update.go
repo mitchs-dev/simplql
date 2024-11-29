@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Update(r *http.Request, w http.ResponseWriter, correlationID string) {
+func Update(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 	c.GetConfig()
 
 	table := globals.UsersTable
@@ -221,7 +221,7 @@ func Update(r *http.Request, w http.ResponseWriter, correlationID string) {
 	log.Debug("Update query: ", updateQuery)
 	log.Debug("Update query args: ", args)
 
-	result, err := wrapper.Execute(updateQuery, args...)
+	result, err := wrapper.Execute(updateQuery, userID, args...)
 	if err != nil {
 		if strings.Contains(err.Error(), globals.ErrorTransactionNoEntry) {
 			log.Error("No entry found for update query: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")

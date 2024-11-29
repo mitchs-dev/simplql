@@ -14,7 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Read(r *http.Request, w http.ResponseWriter, correlationID string) {
+func Read(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 
 	// Read the request body
 	requestBody, err := io.ReadAll(r.Body)

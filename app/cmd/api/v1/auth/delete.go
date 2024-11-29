@@ -14,7 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Delete(r *http.Request, w http.ResponseWriter, correlationID string) {
+func Delete(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 	c.GetConfig()
 
 	authBody, err := io.ReadAll(r.Body)
@@ -238,7 +238,7 @@ func Delete(r *http.Request, w http.ResponseWriter, correlationID string) {
 
 	log.Info("Admins marked for deletion: " + fmt.Sprint(selectedAdminRows) + "/" + fmt.Sprint(adminCount) + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
-	if selectedAdminRows == adminCount {
+	if selectedAdminRows == adminCount && selectedAdminRows > 0 {
 		log.Warn("Attempted to delete all system admin users (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 		response := globals.Response{
 			Status:  "error",
@@ -288,7 +288,7 @@ func Delete(r *http.Request, w http.ResponseWriter, correlationID string) {
 	log.Debug("Delete Query: " + deleteQuery + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
 	// Execute the delete query
-	_, err = wrapper.Execute(deleteQuery, delArgs...)
+	_, err = wrapper.Execute(deleteQuery, userID, delArgs...)
 	if err != nil {
 		log.Error("Failed to execute delete query: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 		response := globals.Response{

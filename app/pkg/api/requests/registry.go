@@ -7,12 +7,12 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/mitchs-dev/library-go/networking"
 	"github.com/mitchs-dev/simplQL/cmd/api/v1/auth"
 	"github.com/mitchs-dev/simplQL/cmd/api/v1/db"
 	"github.com/mitchs-dev/simplQL/cmd/api/v1/docs"
 	"github.com/mitchs-dev/simplQL/cmd/api/v1/system"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
-	"github.com/mitchs-dev/library-go/networking"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -41,8 +41,8 @@ var functionRegistry = map[string]requestHandlingFunction{
 	"system-healthz": system.Healthz,
 }
 
-// requestHandlingFunction is the function signature for the request handling functions - It requires a request, response writer, and a correlation ID as input and returns an error
-type requestHandlingFunction func(*http.Request, http.ResponseWriter, string)
+// requestHandlingFunction is the function signature for the request handling functions - It requires a request, response writer, User ID, and a correlation ID as input and returns an error
+type requestHandlingFunction func(*http.Request, http.ResponseWriter, string, string)
 
 // Get returns a request handling function from the registry
 func Get(name string) (requestHandlingFunction, bool) {
@@ -51,11 +51,11 @@ func Get(name string) (requestHandlingFunction, bool) {
 }
 
 // RunFunction runs a function from the registry
-func RunFunction(functionName string, r *http.Request, w http.ResponseWriter, correlationID string) {
+func RunFunction(functionName string, r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 	function, exists := Get(functionName)
 	if exists {
-		log.Debug("Calling function: " + functionName + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
-		function(r, w, correlationID)
+		log.Debug("Calling function: " + functionName + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + " U: " + userID + ")")
+		function(r, w, userID, correlationID)
 	} else {
 		log.Warn("Function not found: " + functionName + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 		w.WriteHeader(500)

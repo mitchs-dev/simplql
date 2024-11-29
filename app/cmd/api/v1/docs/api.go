@@ -14,7 +14,7 @@ import (
 )
 
 // Get returns the documentation for the API.
-func API(r *http.Request, w http.ResponseWriter, correlationID string) {
+func API(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 
 	log.Debug("Retrieving API documentation (C: " + correlationID + " | M: " + r.Method + " | IP: " + r.RemoteAddr + ")")
 

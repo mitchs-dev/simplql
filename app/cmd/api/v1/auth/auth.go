@@ -81,7 +81,7 @@ func commitJWT(id, jwt string, timeout int64, database string) error {
 		updateArgs := []interface{}{jwt, jwtSHA256, timeout, id}
 		log.Debug("JWT update query: " + updateQuery)
 		log.Debug("JWT update args: ", updateArgs)
-		_, err = wrapper.Execute(updateQuery, updateArgs...)
+		_, err = wrapper.Execute(updateQuery, id, updateArgs...)
 		if err != nil {
 			return fmt.Errorf("Failed to execute update query: " + err.Error())
 		}
@@ -91,7 +91,7 @@ func commitJWT(id, jwt string, timeout int64, database string) error {
 		insertArgs := []interface{}{id, jwt, jwtSHA256, timeout}
 		log.Debug("JWT insert query: " + insertQuery)
 		log.Debug("JWT insert args: ", insertArgs)
-		_, err = wrapper.Execute(insertQuery, insertArgs...)
+		_, err = wrapper.Execute(insertQuery, id, insertArgs...)
 		if err != nil {
 			return fmt.Errorf("Failed to execute insert query: " + err.Error())
 		}
@@ -136,7 +136,7 @@ func deleteJWT(id, database string) error {
 		deleteArgs := []interface{}{existingID}
 		log.Debug("JWT delete query: " + deleteQuery)
 		log.Debug("JWT delete args: ", deleteArgs)
-		_, err = wrapper.Execute(deleteQuery, deleteArgs...)
+		_, err = wrapper.Execute(deleteQuery, id, deleteArgs...)
 		if err != nil {
 			return fmt.Errorf("Failed to execute delete query: " + err.Error())
 		}

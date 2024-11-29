@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/mitchs-dev/library-go/networking"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/version"
-	"github.com/mitchs-dev/library-go/networking"
 	log "github.com/sirupsen/logrus"
 )
 
-func Version(r *http.Request, w http.ResponseWriter, correlationID string) {
+func Version(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 	log.Debug("Version requested (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 	symantic, hash := version.Read()
 	w.WriteHeader(200)

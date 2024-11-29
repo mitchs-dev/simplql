@@ -14,7 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Login(r *http.Request, w http.ResponseWriter, correlationID string) {
+func Login(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 	c.GetConfig()
 
 	if !c.Session.JWT.Enabled {
@@ -90,7 +90,6 @@ func Login(r *http.Request, w http.ResponseWriter, correlationID string) {
 
 	var (
 		userExists bool
-		userID     string
 	)
 
 	if name != "" && password != "" {

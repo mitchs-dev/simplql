@@ -20,7 +20,7 @@ var arb authPkg.AuthRequestBody
 
 var c configuration.Configuration
 
-func Create(r *http.Request, w http.ResponseWriter, correlationID string) {
+func Create(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 
 	c.GetConfig()
 
@@ -190,7 +190,8 @@ func Create(r *http.Request, w http.ResponseWriter, correlationID string) {
 	// Create the user
 	insertQuery := "INSERT INTO " + globals.UsersTable + " (id, name, password, roles) VALUES (?, ?, ?, ?)"
 	log.Debug("Insert Query: " + insertQuery + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
-	_, err = wrapper.Execute(insertQuery, id, name, password, string(rolesJSON))
+	args := []interface{}{id, name, password, string(rolesJSON)}
+	_, err = wrapper.Execute(insertQuery, userID, args...)
 	if err != nil {
 		log.Error("Failed to execute insert query: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 		response := globals.Response{

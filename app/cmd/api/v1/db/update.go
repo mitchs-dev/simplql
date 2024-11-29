@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/mitchs-dev/library-go/networking"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/sqlWrapper"
-	"github.com/mitchs-dev/library-go/networking"
 	log "github.com/sirupsen/logrus"
 )
 
-func Update(r *http.Request, w http.ResponseWriter, correlationID string) {
+func Update(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 	c.GetConfig()
 	var entryUpdate globals.EntryRequest
 
@@ -145,9 +145,9 @@ func Update(r *http.Request, w http.ResponseWriter, correlationID string) {
 		}
 
 		log.Debug("Update Query: " + query + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
-
+		args := []interface{}{append(setArgs, filterArgs...)}
 		// Execute the update query
-		_, err = wrapper.Execute(query, append(setArgs, filterArgs...)...)
+		_, err = wrapper.Execute(query, userID, args...)
 		if err != nil {
 			log.Error("Failed to execute update query: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 			response := globals.Response{

@@ -57,8 +57,7 @@ func (wrapper *SQLiteWrapper) Close() error {
 }
 
 // Execute executes a query without returning any rows
-func (wrapper *SQLiteWrapper) Execute(query string, args ...interface{}) (sql.Result, error) {
-	userID := "tbd"
+func (wrapper *SQLiteWrapper) Execute(query, userID string, args ...interface{}) (sql.Result, error) {
 	tx, err := wrapper.db.BeginTx(context.Background(), &sql.TxOptions{
 		Isolation: sql.LevelSerializable,
 	})
@@ -305,23 +304,50 @@ func (wrapper *SQLiteWrapper) Query(query string, args ...interface{}) (*sql.Row
 
 	// Process the remaining arguments
 	for _, arg := range args {
-		log.Debug("Processing argument: " + arg.(string))
+		var newArg interface{}
 		var isLike bool
-		if strings.Contains(arg.(string), "%") {
-			arg = strings.ReplaceAll(arg.(string), "%", "")
-			isLike = true
-			log.Debug("Argument contains %: " + arg.(string))
-		} else {
-			log.Debug("Argument does not contain %: " + arg.(string))
-			isLike = false
+
+		switch v := arg.(type) {
+		case string:
+			log.Debug("Processing string argument: " + v)
+			if strings.Contains(v, "%") {
+				v = strings.ReplaceAll(v, "%", "")
+				isLike = true
+				log.Debug("Argument contains %: " + v)
+			} else {
+				log.Debug("Argument does not contain %: " + v)
+				isLike = false
+			}
+			newArg = data.Process(v)
+			if isLike {
+				newArg = "%" + newArg.(string) + "%"
+			}
+		case []string:
+			log.Debug("Processing []string argument")
+			for i, s := range v {
+				if strings.Contains(s, "%") {
+					v[i] = strings.ReplaceAll(s, "%", "")
+					isLike = true
+					log.Debug("Argument contains %: " + s)
+				} else {
+					log.Debug("Argument does not contain %: " + s)
+					isLike = false
+				}
+				processed := data.Process(v[i])
+				if isLike {
+					v[i] = "%" + processed.(string) + "%"
+				} else {
+					v[i] = processed.(string)
+				}
+			}
+			newArg = v
+		default:
+			log.Debug("Processing unknown type argument")
+			newArg = data.Process(arg)
 		}
-		newArg := data.Process(arg)
-		if isLike {
-			newArg = "%" + newArg.(string) + "%"
-		}
+
 		newArgs = append(newArgs, newArg)
 	}
-
 	log.Debug("Running query: " + query)
 	log.Debug("New args: ", newArgs)
 
@@ -487,7 +513,8 @@ func CreateDatabases() error {
 				}
 				// Insert entry ID column
 				columns = append(columns, globals.TableEntryIDColumnName+" TEXT")
-				_, err := wrapper.Execute(`CREATE TABLE IF NOT EXISTS ` + table.Name + ` (` + strings.Join(columns, ", ") + `)`)
+				query := `CREATE TABLE IF NOT EXISTS ` + table.Name + ` (` + strings.Join(columns, ", ") + `)`
+				_, err := wrapper.Execute(query, globals.SystemUserID)
 				if err != nil {
 					log.Error("Error when creating table: " + err.Error())
 					if processor.FileDelete(dbFilePath) {
@@ -565,14 +592,24 @@ func createTransaction(database, userID, actionType, affectedTable, recordID, ol
 	if status == "" {
 		return errors.New("error when creating transaction: status cannot be empty")
 	}
+	var errMessageString string
+	if errorMessage != nil {
+		errMessageString = errorMessage.Error()
+	} else {
+		errMessageString = "NULL"
+	}
 	timestamp := generator.Timestamp("Local")
 	query := `INSERT INTO ` + globals.TransactionsTable + ` (Timestamp, userID, actionType, affectedTable, recordID, oldValues, newValues, ipAddress, status, errorMessage) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	args := []interface{}{timestamp, userID, actionType, affectedTable, recordID, oldValues, newValues, ipAddress, status, errorMessage}
+	args := []interface{}{timestamp, userID, actionType, affectedTable, recordID, oldValues, newValues, ipAddress, status, errMessageString}
 	globals.IsTransactionExecution = true
-	_, err = wrapper.Execute(query, args...)
+	log.Debug("Transaction creation query: " + query)
+	log.Debug("Transaction creation args: ", args)
+	_, err = wrapper.Execute(query, globals.SystemUserID, args...)
 	globals.IsTransactionExecution = false
 	if err != nil {
-		log.Debug("Transaction created for " + recordID)
+		log.Error("Error when creating transaction: " + err.Error())
+		return err
 	}
-	return err
+	log.Debug("Transaction created for " + recordID)
+	return nil
 }
