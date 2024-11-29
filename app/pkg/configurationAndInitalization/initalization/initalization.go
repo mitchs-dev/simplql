@@ -14,11 +14,11 @@ import (
 	log "github.com/sirupsen/logrus"
 	flag "github.com/spf13/pflag"
 
-	"github.com/mitchs-dev/simplQL/pkg/api/requests"
 	"github.com/mitchs-dev/library-go/encryption"
 	"github.com/mitchs-dev/library-go/generator"
 	"github.com/mitchs-dev/library-go/loggingFormatter"
 	"github.com/mitchs-dev/library-go/processor"
+	"github.com/mitchs-dev/simplQL/pkg/api/requests"
 )
 
 var c configuration.Configuration
@@ -49,7 +49,9 @@ func Run() {
 	c.GetConfig()
 	if c.Logging.Debug {
 		log.SetLevel(log.DebugLevel)
-		log.Debug("Debug logging enabled")
+		log.Debug("Debug logging enabled - Use with caution")
+		log.Warn("Debug logging contains information that may be sensitive - It's highly recommended to disable debug logging in production")
+		log.Warn("Debug logging contains more than normal logging that could potentially be performance heavy")
 	} else {
 		log.SetLevel(log.InfoLevel)
 	}
