@@ -4,3 +4,4 @@ app/dbs
 app/pkg/configurationAndInitalization/version/version.json
 binary
 app/dbs
+dbs
