@@ -3,7 +3,7 @@ package initalization
 import (
 	"fmt"
 	"os"
-	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/configuration"
@@ -207,12 +207,7 @@ func runEncryptionInit() {
 // This function runs the ID command to get the ID of the user running the application
 // This is used as a validation measure for the encryption key
 func getIDCmdString() string {
-	log.Debug("Running ID command for encryption key")
-	idCmd := "id"
-	cmd := exec.Command("sh", "-c", idCmd)
-	out, err := cmd.Output()
-	if err != nil {
-		log.Fatal("Failed to run ID command: " + err.Error())
-	}
-	return string(out)
+	log.Debug("Getting user ID for encryption key")
+	uid := os.Getuid()
+	return strconv.Itoa(uid)
 }
