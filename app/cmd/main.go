@@ -18,7 +18,7 @@ func init() {
 func main() {
 	if strings.ToLower(os.Getenv(globals.GlobalDevelopmentBuildEnvironmentVariable)) == "true" {
 		log.Warn("This is marked as a development build - Do not use in production")
-		log.Info(globals.ApplicationName + "-dev (v" + version.SymanticString() + ")")
+		log.Info(globals.ApplicationName + " (v" + version.SymanticString() + "-dev)")
 	} else {
 		log.Info(globals.ApplicationName + " (v" + version.SymanticString() + ")")
 	}
