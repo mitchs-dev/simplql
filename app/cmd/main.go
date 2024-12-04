@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"strings"
+
 	"github.com/mitchs-dev/simplQL/pkg/api/requests"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/initalization"
@@ -13,6 +16,11 @@ func init() {
 }
 
 func main() {
-	log.Info(globals.ApplicationName + " (v" + version.SymanticString() + ")")
+	if strings.ToLower(os.Getenv(globals.GlobalDevelopmentBuildEnvironmentVariable)) == "true" {
+		log.Warn("This is marked as a development build - Do not use in production")
+		log.Info(globals.ApplicationName + "-dev (v" + version.SymanticString() + ")")
+	} else {
+		log.Info(globals.ApplicationName + " (v" + version.SymanticString() + ")")
+	}
 	requests.Handler()
 }
