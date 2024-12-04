@@ -12,7 +12,7 @@
 - [x] Login/Logout mechanisms
 - [x] JWT token generation
 - [x] RBAC (DB-level)
-- [ ] Ensure encryption operations are stable
+- [x] Ensure encryption operations are stable
 - [ ] Provide install instructions
 - [ ] Create deployment packaging
 - [ ] Ensure that project meets ACID compliance
@@ -38,7 +38,6 @@
 - **Per-Database User Isolation**: Each database in simplQL has its own set of users, ensuring complete isolation and security between different data stores. (Future feature)
 - **Per-Database RBAC**: The RBAC system in simplQL is scoped to individual databases, allowing for granular control over user permissions and access rights.
 - **Per-entry encryption**: SimplQL can be configured to encrypt each entry of every database, ensuring that data is secure at rest.
-  > 🚨 **Important**: To validate the encryption key; SimplQL uses the `id` command to generate a file. If your system user's id or groups have changed, the validation will fail.
 
 ## 💼 Use Cases
 
