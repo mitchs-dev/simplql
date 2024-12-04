@@ -442,6 +442,7 @@ func CreateDatabases() error {
 			log.Debug("Database file already exists: " + dbFilePath)
 		}
 		if !createDB {
+			log.Debug("Database already exists: " + database.Name)
 			dbVersion, err := strconv.Atoi(data.Process(dbVersionRaw).(string))
 			if err != nil {
 				log.Fatal("Error when converting database version: " + err.Error())
