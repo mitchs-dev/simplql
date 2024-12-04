@@ -3,6 +3,8 @@ package system
 import (
 	"encoding/json"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/mitchs-dev/library-go/networking"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
@@ -13,6 +15,9 @@ import (
 func Version(r *http.Request, w http.ResponseWriter, userID, correlationID string) {
 	log.Debug("Version requested (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 	symantic, hash := version.Read()
+	if strings.ToLower(os.Getenv(globals.GlobalDevelopmentBuildEnvironmentVariable)) == "true" {
+		symantic = symantic + "-dev"
+	}
 	w.WriteHeader(200)
 	response := globals.Response{
 		Status:  "ok",
