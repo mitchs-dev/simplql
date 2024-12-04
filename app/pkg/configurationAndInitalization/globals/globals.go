@@ -36,7 +36,7 @@ var (
 	SystemParameterPrefix = "__"
 	SystemColumnPrefix    = "sys_"
 	SystemRolePrefix      = "__db:"
-	SystemUserID          = "SystemRolePrefix + system"
+	SystemUserID          = SystemRolePrefix + "system"
 	MetadataTable         = SystemTablePrefix + "metadata"
 	UsersTable            = SystemTablePrefix + "users"
 	JWTTable              = SystemTablePrefix + "jwts"
@@ -88,6 +88,7 @@ var (
 	EncryptionKeyEnvironmentVariable          = "SIMPLQL_ENCRYPTION_KEY"
 	SessionDefaultUsernameEnvironmentVariable = "SIMPLQL_DEFAULT_NAME"
 	SessionDefaultPasswordEnvironmentVariable = "SIMPLQL_DEFAULT_PASSWORD"
+	GlobalDevelopmentBuildEnvironmentVariable = "SIMPLQL_DEV_BUILD"
 
 	// Headers
 	NetworkingHeaderHealthZ                       = "X-Healthz"
