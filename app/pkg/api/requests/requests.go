@@ -129,7 +129,7 @@ func interceptor(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		} else if invalidReason == globals.ErrorAuthenticationUserNotFound {
-			log.Error("User not found: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
+			log.Warn("User not found: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 			w.WriteHeader(401)
 			response := globals.Response{
 				Status:  "error",

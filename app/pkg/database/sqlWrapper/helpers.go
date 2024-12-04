@@ -89,7 +89,7 @@ func extractRecordID(query string, args []interface{}) string {
 				}
 			}
 		}
-		log.Error("Could not find entry ID in query or args")
+		log.Warn("Could not find entry ID in query or args")
 		return ""
 	}
 }

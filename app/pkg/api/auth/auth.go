@@ -105,7 +105,7 @@ type AuthRequestBody globals.AuthRequestBody
 // GetAuthRequest will unmarshal the request body as JSON or YAML and return the request body
 func (authItem *AuthRequestBody) GetAuthRequest(authRequestBody []byte, correlationID string) *AuthRequestBody {
 	if len(authRequestBody) == 0 {
-		log.Error("Request body is empty (C: " + correlationID + ")")
+		log.Warn("Request body is empty (C: " + correlationID + ")")
 		return nil
 	}
 	// Check if the request body is formatted as JSON
