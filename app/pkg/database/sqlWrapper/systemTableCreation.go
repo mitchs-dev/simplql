@@ -58,7 +58,7 @@ func createMetadataTable(database string, databaseVersion int) error {
 		return errors.New(globals.ErrorDatabaseInitialization)
 	}
 	query = `INSERT INTO ` + globals.MetadataTable + ` (version) VALUES (?)`
-	args := []interface{}{fmt.Sprint(databaseVersion)}
+	args := fmt.Sprint(databaseVersion)
 	_, err = wrapper.Execute(query, globals.SystemUserID, args)
 	if err != nil {
 		log.Error("Error when inserting database version: " + err.Error())
