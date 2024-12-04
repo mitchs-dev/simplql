@@ -1,1 +1,30 @@
-FROM scratch
+FROM frolvlad/alpine-glibc:glibc-2.34
+
+RUN apk add --no-cache gcc openssl ca-certificates
+
+ARG IMAGE_NAME
+ARG IMAGE_AUTHOR
+ARG IMAGE_DESCRIPTION
+ARG BUILD_DATE
+ARG BUILD_SHA
+ARG BUILD_VERSION
+ARG BUILD_ARCH
+ARG BUILD_OS
+ARG DEV_BUILD
+ARG DEV_BUILD_FLAG
+
+LABEL name=${IMAGE_NAME}
+LABEL maintainer=${IMAGE_AUTHOR}
+LABEL author=${IMAGE_AUTHOR}
+LABEL description=${IMAGE_DESCRIPTION}
+LABEL version=${BUILD_VERSION}
+LABEL commitSHA=${BUILD_SHA}
+LABEL buildDate=${BUILD_DATE}
+
+ENV SIMPLQL_DEV_BUILD=${DEV_BUILD}
+
+COPY ./binary/${IMAGE_NAME}-${BUILD_OS}-${BUILD_ARCH}-${BUILD_SHA}-${BUILD_DATE}${DEV_BUILD_FLAG} /opt/simplql/binary
+
+WORKDIR /
+
+ENTRYPOINT ["/opt/simplql/binary"]

@@ -1,72 +1,46 @@
 #!/bin/bash
-APP_DIR="app/"
-MAIN_FILE_PATH="cmd/main.go"
-BINARY_DIR="../binary"
+GO_VERSION="1.23.1-cgo"
+APP_DIR="$PWD/app"
+MAIN_FILE_PATH="/app/cmd"
 BINARY_NAME="simplql"
 
-CURRENT_VERSION=`jq -r .hash app/pkg/configurationAndInitalization/version/version.json`
+rm -rf binary
+cd $APP_DIR
+
+APP_DIR="$PWD"
+
+CURRENT_VERSION=`jq -r .hash $APP_DIR/pkg/configurationAndInitalization/version/version.json`
 DATE=`date +%Y-%m-%d`
 echo "Building $BINARY_NAME ($CURRENT_VERSION)"
-echo "Changing Directory to $APP_DIR"
-cd $APP_DIR
-mkdir -p $BINARY_DIR/sha256
+
+if [[ $* == *--dev* ]]; then
+  DEV_BUILD="true"
+else
+  DEV_BUILD="false"
+fi
 if [[ $* == *--arch* ]]; then
    if [[ $* == *linux* ]]; then
-      if [[ $* == *--dev* ]]; then
-         env GOOS=linux GOARCH=amd64 go build -v -o $BINARY_DIR/$BINARY_NAME-linux-amd64-$CURRENT_VERSION-$DATE-DEVBUILD $MAIN_FILE_PATH
-         sha256sum $BINARY_DIR/$BINARY_NAME-linux-amd64-$CURRENT_VERSION-$DATE-DEVBUILD  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-linux-amd64-$CURRENT_VERSION-$DATE-DEVBUILD.sha256
-      else
-         env GOOS=linux GOARCH=amd64 go build -o $BINARY_DIR/$BINARY_NAME-linux-amd64-$CURRENT_VERSION $MAIN_FILE_PATH
-         sha256sum $BINARY_DIR/$BINARY_NAME-linux-amd64-$CURRENT_VERSION  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-linux-amd64-$CURRENT_VERSION.sha256
-      fi
-      echo "Generated Linux Binary 🐧"
-      cd -
-      exit 0
+      USE_OS="linux"
    elif [[ $* == *mac* ]]; then
-      if [[ $* == *--dev* ]]; then
-         env GOOS=darwin GOARCH=amd64 go build -o $BINARY_DIR/$BINARY_NAME-darwin-amd64-$CURRENT_VERSION-$DATE-DEVBUILD $MAIN_FILE_PATH
-         sha256sum $BINARY_DIR/$BINARY_NAME-darwin-amd64-$CURRENT_VERSION-$DATE-DEVBUILD  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-darwin-amd64-$CURRENT_VERSION-$DATE-DEVBUILD.sha256
-         env GOOS=darwin GOARCH=arm64 go build -o $BINARY_DIR/$BINARY_NAME-darwin-arm64-$CURRENT_VERSION-$DATE-DEVBUILD $MAIN_FILE_PATH
-         sha256sum $BINARY_DIR/$BINARY_NAME-darwin-arm64-$CURRENT_VERSION-$DATE-DEVBUILD  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-darwin-arm64-$CURRENT_VERSION-$DATE-DEVBUILD.sha256
-
-      else
-         env GOOS=darwin GOARCH=amd64 go build -o $BINARY_DIR/$BINARY_NAME-darwin-amd64-$CURRENT_VERSION $MAIN_FILE_PATH
-         sha256sum $BINARY_DIR/$BINARY_NAME-darwin-amd64-$CURRENT_VERSION | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-darwin-amd64-$CURRENT_VERSION.sha256
-         env GOOS=darwin GOARCH=arm64 go build -o $BINARY_DIR/$BINARY_NAME-darwin-arm64-$CURRENT_VERSION $MAIN_FILE_PATH
-         sha256sum $BINARY_DIR/$BINARY_NAME-darwin-arm64-$CURRENT_VERSION | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-darwin-arm64-$CURRENT_VERSION.sha256
-      fi
-      echo "Generated Mac OSX Binary 🍎"
-      cd -
-      exit 0
+     USE_OS="darwin"
    elif [[ $* == *windows* ]]; then
-      if [[ $* == *--dev*  ]]; then
-         env GOOS=windows GOARCH=amd64 go build -o $BINARY_DIR/$BINARY_NAME-$CURRENT_VERSION-$DATE-DEVBUILD.exe $MAIN_FILE_PATH
-         sha256sum $BINARY_DIR/$BINARY_NAME-$CURRENT_VERSION-$DATE-DEVBUILD.exe  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-$CURRENT_VERSION-$DATE-DEVBUILD-windows.sha256
-      else
-         env GOOS=windows GOARCH=amd64  go build -o $BINARY_DIR/$BINARY_NAME-$CURRENT_VERSION.exe $MAIN_FILE_PATH
-         sha256sum $BINARY_DIR/$BINARY_NAME-$CURRENT_VERSION.exe  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-$CURRENT_VERSION-windows.sha256
-      fi
-      echo "Generated Windows Binary 🪟"
-      cd -
-      exit 0
-   elif [[ $* == *all* ]]; then
-      if [[ $* == *--dev* ]]; then
-         echo "'--dev' is currently unsupported with '--all' - Please use architecture specific flag (--arch <linux/mac/windows>) instead"
-         cd -
-         exit 0
-      fi
-      env GOOS=linux GOARCH=amd64 go build -o $BINARY_DIR/$BINARY_NAME-linux-amd64-$CURRENT_VERSION $MAIN_FILE_PATH
-      sha256sum $BINARY_DIR/$BINARY_NAME-linux-amd64-$CURRENT_VERSION  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-linux-amd64-$CURRENT_VERSION.sha256
+      USE_OS="windows"
+   fi
+   docker run --rm -v "$APP_DIR:/app" -e CGO_LDFLAGS="-s -w" vo1d/gocompiler:$GO_VERSION $BINARY_NAME $CURRENT_VERSION $USE_OS $DEV_BUILD $MAIN_FILE_PATH && \
+   mv binary/binary/ ../binary
+   rm -rf binary
+   echo "Generated $BINARY_NAME ($USE_OS/$CURRENT_VERSION) Binary"
+   cd -
+   exit 0
+   if [[ $* == *all* ]]; then
+      USE_OS="linux"
+      docker run  --rm -v "$APP_DIR:/app" -e CGO_LDFLAGS="-s -w" vo1d/gocompiler:$GO_VERSION $BINARY_NAME $CURRENT_VERSION $USE_OS $DEV_BUILD $MAIN_FILE_PATH
       echo "Generated Linux Binary 🐧"
-      cd -
-      env GOOS=darwin GOARCH=amd64 go build -o $BINARY_DIR/$BINARY_NAME-darwin-amd64-$CURRENT_VERSION $MAIN_FILE_PATH
-      sha256sum $BINARY_DIR/$BINARY_NAME-darwin-amd64-$CURRENT_VERSION  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-darwin-amd64-$CURRENT_VERSION.sha256
-      env GOOS=darwin GOARCH=arm64 go build -o $BINARY_DIR/$BINARY_NAME-darwin-arm64-$CURRENT_VERSION $MAIN_FILE_PATH
-      sha256sum $BINARY_DIR/$BINARY_NAME-darwin-arm64-$CURRENT_VERSION  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-darwin-arm64-$CURRENT_VERSION.sha256
+      USE_OS="darwin"
+      docker run --rm -v "$APP_DIR:/app" -e CGO_LDFLAGS="-s -w" vo1d/gocompiler:$GO_VERSION $BINARY_NAME $CURRENT_VERSION $USE_OS $DEV_BUILD $MAIN_FILE_PATH && \
       echo "Generated Mac OSX Binary 🍎"
-      cd -
-      env GOOS=windows GOARCH=amd64  go build -o $BINARY_DIR/$BINARY_NAME-$CURRENT_VERSION.exe $MAIN_FILE_PATH
-      sha256sum $BINARY_DIR/$BINARY_NAME-$CURRENT_VERSION.exe  | cut -d ' ' -f 1 > $BINARY_DIR/sha256/$BINARY_NAME-$CURRENT_VERSION-windows.sha256
+      USE_OS="windows"
+      docker run --rm -v "$APP_DIR:/app" -e CGO_LDFLAGS="-s -w" vo1d/gocompiler:$GO_VERSION $BINARY_NAME $CURRENT_VERSION $USE_OS $DEV_BUILD $MAIN_FILE_PATH && \
       echo "Generated Windows Binary 🪟"
       cd -
       exit 0
@@ -75,5 +49,5 @@ else
    echo "You should run ./scripts/generate-binary.sh --arch <linux/mac/windows/all>"
    echo "You can also run '--dev' to create a 'Devlopment Build'"
    cd -
-   exit 0
+   exit 1
 fi
