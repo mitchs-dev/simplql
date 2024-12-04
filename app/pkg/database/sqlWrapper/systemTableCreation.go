@@ -13,6 +13,8 @@ import (
 )
 
 func createTransactionsTable(database string) error {
+	c.GetConfig()
+	log.Debug("Creating transactions table for database: " + database)
 	if !c.Logging.Transactions.Enabled {
 		globals.IsTransactionExecution = false
 		log.Debug("Transactions are disabled - Skipping transaction table creation")
@@ -38,6 +40,8 @@ func createTransactionsTable(database string) error {
 }
 
 func createMetadataTable(database string, databaseVersion int) error {
+	c.GetConfig()
+	log.Debug("Creating metadata table for database: " + database)
 	dbFilePath := c.Storage.Path + "/" + database + ".db"
 	wrapper, err := NewSQLiteWrapper(c.Storage.Path + "/" + database + ".db")
 	if err != nil {
@@ -73,6 +77,8 @@ func createMetadataTable(database string, databaseVersion int) error {
 }
 
 func createUsersTable(database string) error {
+	c.GetConfig()
+	log.Debug("Creating users table for database: " + database)
 	dbFilePath := c.Storage.Path + "/" + database + ".db"
 	wrapper, err := NewSQLiteWrapper(c.Storage.Path + "/" + database + ".db")
 	if err != nil {
@@ -122,7 +128,7 @@ func createUsersTable(database string) error {
 	}
 	query = `INSERT INTO ` + globals.UsersTable + ` (id,name, password, roles) VALUES (?,?, ?, ?)`
 	args := []interface{}{userID, userName, userPassword, string(defaultRolesAsJSON)}
-	_, err = wrapper.Execute(query, globals.SystemUserID, args)
+	_, err = wrapper.Execute(query, globals.SystemUserID, args...)
 	if err != nil {
 		log.Error("Error when inserting default user: " + err.Error())
 		if processor.FileDelete(dbFilePath) {
@@ -141,6 +147,8 @@ func createUsersTable(database string) error {
 }
 
 func createJWTTable(database string) error {
+	c.GetConfig()
+	log.Debug("Creating JWT table for database: " + database)
 	dbFilePath := c.Storage.Path + "/" + database + ".db"
 	wrapper, err := NewSQLiteWrapper(c.Storage.Path + "/" + database + ".db")
 	if err != nil {
