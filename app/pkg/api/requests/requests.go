@@ -16,8 +16,8 @@ import (
 	"strings"
 
 	"github.com/mitchs-dev/simplQL/pkg/api/auth"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/configuration"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/configuration"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 
 	"github.com/gorilla/mux"
 	"github.com/mitchs-dev/library-go/generator"

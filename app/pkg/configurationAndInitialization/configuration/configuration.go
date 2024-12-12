@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 
 	libGoConfiguration "github.com/mitchs-dev/library-go/configuration"
 	"github.com/mitchs-dev/library-go/processor"

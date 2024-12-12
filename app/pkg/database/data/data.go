@@ -9,8 +9,8 @@ import (
 	"strings"
 
 	"github.com/mitchs-dev/library-go/encryption"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/configuration"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/configuration"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 	log "github.com/sirupsen/logrus"
 )
 

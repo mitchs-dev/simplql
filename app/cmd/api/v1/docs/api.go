@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	yml "github.com/ghodss/yaml"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
 	log "github.com/sirupsen/logrus"
 )
 

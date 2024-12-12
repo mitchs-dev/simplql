@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/data"
 
 	log "github.com/sirupsen/logrus"

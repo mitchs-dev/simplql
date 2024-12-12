@@ -9,7 +9,7 @@ import (
 	"github.com/mitchs-dev/library-go/processor"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/sqlWrapper"
 )
 

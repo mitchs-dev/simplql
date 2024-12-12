@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/configuration"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/configuration"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/data"
 
 	log "github.com/sirupsen/logrus"

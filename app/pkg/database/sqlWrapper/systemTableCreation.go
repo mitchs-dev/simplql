@@ -8,7 +8,7 @@ import (
 
 	"github.com/mitchs-dev/library-go/generator"
 	"github.com/mitchs-dev/library-go/processor"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 	log "github.com/sirupsen/logrus"
 )
 

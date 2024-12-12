@@ -10,7 +10,7 @@ import (
 	jwtLib "github.com/mitchs-dev/library-go/jwt"
 	"github.com/mitchs-dev/library-go/networking"
 	authPkg "github.com/mitchs-dev/simplQL/pkg/api/auth"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 	log "github.com/sirupsen/logrus"
 )
 

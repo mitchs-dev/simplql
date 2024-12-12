@@ -9,7 +9,7 @@ cd $APP_DIR
 
 APP_DIR="$PWD"
 
-CURRENT_VERSION=`jq -r .hash $APP_DIR/pkg/configurationAndInitalization/version/version.json`
+CURRENT_VERSION=`jq -r .hash $APP_DIR/pkg/configurationAndInitialization/version/version.json`
 DATE=`date +%Y-%m-%d`
 echo "Building $BINARY_NAME ($CURRENT_VERSION)"
 

@@ -5,9 +5,9 @@ import (
 	"strings"
 
 	"github.com/mitchs-dev/simplQL/pkg/api/requests"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/initalization"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/version"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/initalization"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/version"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -1,14 +1,13 @@
 package db
 
 import (
-	"bytes"
 	"encoding/json"
-	"io"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/mitchs-dev/library-go/networking"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 	"github.com/mitchs-dev/simplQL/pkg/database/sqlWrapper"
 	log "github.com/sirupsen/logrus"
 )
@@ -20,23 +19,9 @@ func Read(r *http.Request, w http.ResponseWriter, userID, correlationID string) 
 	sort := r.URL.Query().Get("sort")
 
 	var erb globals.EntryRequest
-	// Read the request body into a buffer
-	bodyBytes, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Error("Failed to read request body: " + err.Error() + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
-		response := globals.Response{
-			Status:  "error",
-			Message: "INTERNAL_SERVER_ERROR",
-			Data:    map[string]string{"correlationID": correlationID},
-		}
-		err := json.NewEncoder(w).Encode(response)
-		if err != nil {
-			log.Error("Failed to encode response", err.Error()+" (C: "+correlationID+" | M: "+r.Method+" | IP: "+networking.GetRequestIPAddress(r)+")")
-		}
-		return
-	}
+
 	// Decode the buffer into requestBody
-	err = json.NewDecoder(bytes.NewBuffer(bodyBytes)).Decode(&erb)
+	err := json.NewDecoder(r.Body).Decode(&erb)
 	if err != nil {
 		log.Error("Failed to unmarshal request body: ", err.Error()+" (C: "+correlationID+" | M: "+r.Method+" | IP: "+networking.GetRequestIPAddress(r)+")")
 		w.WriteHeader(500)
@@ -54,13 +39,13 @@ func Read(r *http.Request, w http.ResponseWriter, userID, correlationID string) 
 
 	database := erb.Database
 
-	// Reset the request body so it can be read again later
-	r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
-
 	var data []map[string]interface{}
+
+	log.Debug("Query has " + fmt.Sprint(len(erb.Entries)) + " entries (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
 	for _, entry := range erb.Entries {
 		table := entry.Table
+		log.Info("Using database: " + database + "/" + table + " for query (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
 		var field string
 		var filters string
@@ -70,13 +55,16 @@ func Read(r *http.Request, w http.ResponseWriter, userID, correlationID string) 
 
 					filters = filters + selectFilter.(string) + ","
 				}
+				log.Debug("Select filters: " + filters + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 			} else {
-				field = dataKey
+				for _, data := range dataValue.([]interface{}) {
+					field = dataKey
+					filters = filters + data.(string) + ","
+				}
+				log.Debug("Field: " + field + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 			}
 		}
 		filters = strings.TrimSuffix(filters, ",")
-
-		log.Info("Using database: " + database + "/" + table + " for query (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
 
 		var filterList []string
 		var params []interface{}
@@ -138,6 +126,19 @@ func Read(r *http.Request, w http.ResponseWriter, userID, correlationID string) 
 		}
 
 		log.Debug("Query: " + query)
+		if query == "" {
+			log.Error("Something went wrong - Query is empty" + " (C: " + correlationID + " | M: " + r.Method + " | IP: " + networking.GetRequestIPAddress(r) + ")")
+			response := globals.Response{
+				Status:  "error",
+				Message: "INTERNAL_SERVER_ERROR",
+				Data:    map[string]string{"correlationID": correlationID},
+			}
+			err := json.NewEncoder(w).Encode(response)
+			if err != nil {
+				log.Error("Failed to encode response", err.Error()+" (C: "+correlationID+" | M: "+r.Method+" | IP: "+networking.GetRequestIPAddress(r)+")")
+			}
+			return
+		}
 		dbFilePath := c.Storage.Path + "/" + database + ".db"
 		wrapper, err := sqlWrapper.NewSQLiteWrapper(dbFilePath)
 		if err != nil {

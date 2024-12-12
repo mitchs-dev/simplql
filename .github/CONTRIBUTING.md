@@ -49,7 +49,7 @@ To set up the project locally, follow these steps:
     ```
 2. Change into the project directory (`simplql`)
 3. Install the project dependencies with `go mod tidy`
-4. Ensure that you have a `config` file to customize any settings. You can copy from the default configuration under `app/pkg/configurationAndInitalization/configuration/default.yaml`
+4. Ensure that you have a `config` file to customize any settings. You can copy from the default configuration under `app/pkg/configurationAndInitialization/configuration/default.yaml`
 5. Change to the `app` directory
 6. Run the project with `go run cmd/main.go -c <path to your config file>`
 

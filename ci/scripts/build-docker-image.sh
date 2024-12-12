@@ -10,8 +10,8 @@ IMAGE_DESCRIPTION="A lightweight SQLite server designed to provide a simple and 
 DOCKERFILLE_PATH="ci/images/Dockerfile"
 BUILD_CONTEXT="."
 
-BUILD_VERSION=`jq -r .symantic app/pkg/configurationAndInitalization/version/version.json`
-BUILD_SHA=`jq -r .hash app/pkg/configurationAndInitalization/version/version.json`
+BUILD_VERSION=`jq -r .symantic app/pkg/configurationAndInitialization/version/version.json`
+BUILD_SHA=`jq -r .hash app/pkg/configurationAndInitialization/version/version.json`
 BUILD_DATE=`date -u +%Y-%m-%d`
 
 if [[ "$DEV_BUILD" == "true" ]]; then

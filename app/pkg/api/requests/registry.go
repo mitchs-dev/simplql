@@ -12,7 +12,7 @@ import (
 	"github.com/mitchs-dev/simplQL/cmd/api/v1/db"
 	"github.com/mitchs-dev/simplQL/cmd/api/v1/docs"
 	"github.com/mitchs-dev/simplQL/cmd/api/v1/system"
-	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
+	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitialization/globals"
 	log "github.com/sirupsen/logrus"
 )
 

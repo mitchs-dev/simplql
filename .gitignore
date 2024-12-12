@@ -1,7 +1,7 @@
 app/*.yaml
 app/config
 app/dbs
-app/pkg/configurationAndInitalization/version/version.json
+app/pkg/configurationAndInitialization/version/version.json
 binary
 app/dbs
 dbs
