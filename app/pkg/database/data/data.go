@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mitchs-dev/library-go/encryption"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/configuration"
 	"github.com/mitchs-dev/simplQL/pkg/configurationAndInitalization/globals"
-	"github.com/mitchs-dev/library-go/encryption"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -42,6 +42,7 @@ func Process(data interface{}) interface{} {
 	// Check the type of the data
 	switch data.(type) {
 	case string:
+		log.Debug("Data: " + data.(string))
 		originalFormat = "string"
 		_, err := json.Marshal(data)
 		if err == nil {
@@ -50,6 +51,31 @@ func Process(data interface{}) interface{} {
 				log.Debug("Data is a JSON array - setting as []string")
 			}
 		}
+		// Check if the string is actually an int
+		if _, err = strconv.Atoi(data.(string)); err == nil {
+			originalFormat = "int"
+			log.Debug("Data is an int - setting as int")
+			break
+		}
+		// Check if the string is actually an int64
+		if _, err = strconv.ParseInt(data.(string), 10, 64); err == nil {
+			originalFormat = "int64"
+			log.Debug("Data is an int64 - setting as int64")
+			break
+		}
+		// Check if the string is actually a float64
+		if _, err = strconv.ParseFloat(data.(string), 64); err == nil {
+			originalFormat = "float64"
+			log.Debug("Data is a float64 - setting as float64")
+			break
+		}
+		// Check if the string is actually a bool
+		if _, err = strconv.ParseBool(data.(string)); err == nil {
+			originalFormat = "bool"
+			log.Debug("Data is a bool - setting as bool")
+			break
+		}
+
 	case []byte:
 		originalFormat = "[]byte"
 	case int:
@@ -62,6 +88,30 @@ func Process(data interface{}) interface{} {
 		originalFormat = "bool"
 	case []string:
 		originalFormat = "[]string"
+		// Check if the array is actually []int
+		_, err := strconv.Atoi(data.([]string)[0])
+		if err == nil {
+			originalFormat = "[]int"
+			log.Debug("Data is an array of ints - setting as []int")
+		}
+		// Check if the array is actually []float64
+		_, err = strconv.ParseFloat(data.([]string)[0], 64)
+		if err == nil {
+			originalFormat = "[]float64"
+			log.Debug("Data is an array of float64s - setting as []float64")
+		}
+		// Check if the array is actually []int64
+		_, err = strconv.ParseInt(data.([]string)[0], 10, 64)
+		if err == nil {
+			originalFormat = "[]int64"
+			log.Debug("Data is an array of int64s - setting as []int64")
+		}
+		// Check if the array is actually []bool
+		_, err = strconv.ParseBool(data.([]string)[0])
+		if err == nil {
+			originalFormat = "[]bool"
+			log.Debug("Data is an array of bools - setting as []bool")
+		}
 	case []interface{}:
 		log.Warn("Couldn't determine original format - assuming []string")
 		originalFormat = "[]string"
