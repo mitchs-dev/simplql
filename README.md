@@ -1,6 +1,7 @@
 # simplQL: A Lightweight SQLite Server
 
-> 🚧 This project is still **under development**. Some aspects of this project still need to be implemented and tested. Please refer to the [Development and Roadmap](#️-development-and-roadmap) section for more information. 🚧
+> [!Warning]
+> 🚧 This project is **archived**. I had some priority changes and ended up shifting my design ideas over to another project. 🚧
 
 ## 📋 Items to Phase 1 completion
 
